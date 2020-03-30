@@ -1,0 +1,22 @@
+image: node:latest
+
+# Taken, with 💙, from:
+# https://medium.com/jubianchi-fr/preview-your-website-with-gitlab-ci-and-surge-5b861d7c9a3a
+preview:
+    stage: deploy
+    script:
+      - npm install
+      - npm run build
+      - SLUG=$(echo ${CI_BUILD_REF_NAME} | sed 's/[^a-zA-Z0-9\-_]/-/g ; s/-\+/-/g')
+      - node_modules/.bin/surge build mcqueen-${SLUG}.surge.sh
+    except:
+      - master
+
+aesthetics-and-lint:
+    stage: deploy
+    script:
+      - npm install
+      - node_modules/prettier/bin-prettier.js --list-different ./src/**/*.js ./src/*.js
+      - node_modules/.bin/eslint src/
+    except:
+      - master
